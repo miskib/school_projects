@@ -1,0 +1,15 @@
+Java Netbeans projects, only raw code uploaded here.
+
+TASK 1 (ZAD1):
+Write a parallel implementation for the multiplication of the vector B by the number x and the subsequent subtraction of the vector C, the result of which should be stored in the vector A; i.e.: A [i] = B [i] * x - C [i], i = 0 .... n . n = 1048576. 
+B and C vectors should be filled with random numbers from the range [0:1]. As a result, print A [0] and A [n]. There are no restrictions to how to store these vectors within memory.
+Programmes should be run on 1, 2, 4 processors (cores, threads) and execution times should be provided.
+
+TASK 2 (ZAD2):
+Write a parallel programme that will calculate the sum of the items in the array A [i] (i = 1,1024). 
+The array should be filled with random numbers from the range [0:1].
+The result should be collected on processor 0 and given as standard output.
+
+TASK 3 (ZAD3):
+Write a parallel programme that will take n integer numbers from the range of [0:10] from the file in.txt and then provide parallel calculation of a histogram; i.e. it will find the vector B [i] (i = 0,100) the subsequent cells of which will be filled with a number of numbers with a specified value: B [0] number 0, B [1] number 1, B [2] number 2, etc. 
+The array B [i] should be collected on processor 0 and given as standard output.
