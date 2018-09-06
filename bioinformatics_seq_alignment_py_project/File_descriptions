@@ -1,0 +1,8 @@
+File align_glob2.py:
+Write an implementation for the dynamic programming PSA algorithm for global sequence alignment.
+
+File align_local2.py:
+As above, local sequence alignment.
+
+File align_semi.py:
+As above, semiglobal sequence alignment.
