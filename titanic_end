@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 20 19:48:50 2019
+
+@author: misia
+"""
+from __future__ import print_function
+import os
+data_path = ['/home/misia/Documents/Intel Course/dane/']
+
+import pandas as pd
+
+#Data preprocessing, train and test dataset preparation
+filepath_train = os.sep.join(data_path + ['train.csv'])
+filepath_test = os.sep.join(data_path + ['test.csv'])
+
+data_train = pd.read_csv(filepath_train)
+data_test = pd.read_csv(filepath_test)
+
+data_train.head(1).T
+data_train.drop(['Name', 'Ticket', 'Cabin', 'Embarked'], axis=1, inplace=True)
+data_test.head(1).T
+data_test.drop(['Name', 'Ticket', 'Cabin', 'Embarked'], axis=1, inplace=True)
+
+data_train.columns
+data_test.columns
+
+from sklearn.preprocessing import LabelBinarizer
+pd.options.mode.use_inf_as_na = True
+
+#Data printing for checkup if the formats are right
+#print(data_train.shape[0])
+#print(data_test.shape[0])
+
+#print(data_train.columns.tolist())
+#print(data_test.columns.tolist())
+
+#print(data_train.dtypes)
+#print(data_test.dtypes)
+
+
+import warnings
+warnings.filterwarnings('ignore', module='sklearn')
+
+lb = LabelBinarizer()
+
+for col in ['Sex']:
+    data_train[col] = lb.fit_transform(data_train[col])
+    data_test[col] = lb.fit_transform(data_test[col])
+    
+from sklearn.preprocessing import MinMaxScaler
+
+msc = MinMaxScaler()
+
+data_train = pd.DataFrame(msc.fit_transform(data_train),  
+                    columns=data_train.columns)
+data_test = pd.DataFrame(msc.fit_transform(data_test),  
+                    columns=data_test.columns)
+
+x_cols_train = [x for x in data_train.columns if x != 'Survived']
+x_cols_test = [x for x in data_test.columns if x != 'Survived']
+
+X_data_train = data_train[x_cols_train]
+y_data_train = data_train['Survived']
+X_data_test = data_test[x_cols_test]
+y_data_test = data_test['Survived']
+
+
+#KNN train and test
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors=3, weights='uniform', p=1)
+
+knn = knn.fit(X_data_train, y_data_train)
+
+y_test_pred_knn = knn.predict(X_data_test)
+
+knn_score_test = knn.score(X_data_test, y_data_test)
+
+#Logistic Regression train and test
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import mean_squared_error
+ 
+LR = LogisticRegression()
+
+error_df = list()
+
+LR = LR.fit(X_data_train, y_data_train)
+y_train_pred_LR = LR.predict(X_data_train)
+y_test_pred_LR = LR.predict(X_data_test)
+
+LR_score_test = LR.score(X_data_test, y_data_test)
+ 
+error_df.append(pd.Series({'Mean squared error in LR train': mean_squared_error(y_data_train, y_train_pred_LR),
+                           'Mean squared error in LR test' : mean_squared_error(y_data_test,  y_test_pred_LR)},
+                           name='no enc'))
+
+error_df = pd.concat(error_df, axis=1)
+
+#Multinomial Naive Bayes train and test
+from sklearn.naive_bayes import MultinomialNB
+
+MNB = MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+MNB = MNB.fit(X_data_train, y_data_train)
+y_test_pred_MNB = MNB.predict(X_data_test)
+
+MNB_score_test = MNB.score(X_data_test, y_data_test)
+
+#Linear SVM train and test
+from sklearn.svm import LinearSVC
+
+LSVC = LinearSVC()
+LSVC = LSVC.fit(X_data_train, y_data_train)
+y_test_pred_LSVC = LSVC.predict(X_data_test)
+
+LSVC_score_test = LSVC.score(X_data_test, y_data_test)
+
+
+#Printing accuracy scores and metrics for classifiers
+from sklearn import metrics
+
+clf_score_dict = {"KNN" : (knn_score_test, y_test_pred_knn), "Multinomial Naive Bayes" : (MNB_score_test, y_test_pred_MNB), "Linear SVM" : (LSVC_score_test, y_test_pred_LSVC), "Logistic Regression": (LR_score_test, y_test_pred_LR)}
+
+for clf in clf_score_dict:
+    print (clf + " score on test: " + str(clf_score_dict[clf][0]))
+    print(metrics.classification_report(y_data_test, clf_score_dict[clf][1]))
+    
+print(error_df)
+    
